@@ -2,9 +2,9 @@
 
 > 智能代理节点管理工具 —— 基于 iori-nav UI 风格重构的多协议订阅转换器
 
-## 在线演示
+## [在线演示](https://l26t3xnfpx7mu.ok.kimi.link)
 
-https://vivo-max.github.io/ProxyHub/
+
 
 ## 界面预览
 
