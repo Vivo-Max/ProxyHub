@@ -11,10 +11,11 @@ https://l26t3xnfpx7mu.ok.kimi.link
 ProxyHub 是一款纯前端运行的代理节点管理工具，支持 VLESS、VMess、Shadowsocks、Trojan 等主流协议的解析与多客户端配置生成。采用 iori-nav 的毛玻璃卡片式 UI 设计，支持浅色/深色主题、自定义壁纸、界面外观调节等个性化功能。
 
 **核心特点：**
-- 纯前端运行，无需后端服务器
+- 纯前端运行，无需后端服务器，任意静态托管即可使用
 - 节点数据不上传，本地处理保障隐私
-- 零配置部署，任意静态托管即可使用
+- 零配置部署，双击 HTML 即可使用
 - 支持文件拖拽导入、模板批量生成、自动缓存
+- 配置文件内置 url-test，由客户端自行测速排序
 
 ## 功能特性
 
@@ -28,7 +29,7 @@ ProxyHub 是一款纯前端运行的代理节点管理工具，支持 VLESS、VM
 - **Clash** / **Clash Verge** / **FlClash**
 - **V2RayN** / **V2RayNG**
 - **SingBox**
-- 内置 url-test 自动测速（客户端端执行）
+- 配置文件内置 url-test，客户端自行测速排序
 
 ### 输入方式
 - URL 粘贴解析（混合多协议）
@@ -49,7 +50,7 @@ ProxyHub 是一款纯前端运行的代理节点管理工具，支持 VLESS、VM
 前端：原生 HTML5 + CSS3 + ES6（无框架依赖）
 CSS：Tailwind CSS（utility） + 自定义 CSS 变量
 部署：任意静态托管（GitHub Pages / Cloudflare Pages / Vercel 等）
-可选：Cloudflare Function（validate.js）用于真实 TCP 延迟探测
+可选：Cloudflare Function（validate.js）用于 IP 地理位置查询
 ```
 
 ### 文件结构
@@ -110,7 +111,7 @@ npx serve
 3. Source 选择 Deploy from a branch → main / root
 4. 访问 `https://你的用户名.github.io/仓库名`
 
-### 方式四：部署到 Cloudflare Pages（获取真实延迟探测）
+### 方式四：部署到 Cloudflare Pages
 
 ```bash
 # 1. 安装 wrangler
@@ -125,7 +126,7 @@ npx wrangler pages deploy .
 # 4. 浏览器打开部署的 URL
 ```
 
-> Cloudflare Pages 部署后，`validate.js` Function 自动启用，可获得真实 TCP 延迟数据。
+> Cloudflare Pages 部署后，`validate.js` Function 自动启用，可获得 IP 地理位置信息。
 
 ### 基本操作流程
 
@@ -158,8 +159,8 @@ npx wrangler pages deploy .
 ## 注意事项
 
 1. **浏览器兼容性**：推荐使用 Chrome / Edge / Firefox 最新版本。Safari 需 16.4+ 支持 View Transitions API。
-2. **延迟探测**：不部署 Cloudflare Pages 时，节点列表显示地区信息（🇺🇸 美国），不显示延迟数值。客户端应通过配置文件内置的 `url-test` 自行测速。
-3. **隐私安全**：所有处理在浏览器本地完成，节点数据不上传任何服务器（除可选的 Cloudflare Function 延迟探测外）。
+2. **延迟显示**：本项目不实现浏览器端延迟探测（HTTP ping 与真实代理协议延迟严重不符）。节点列表显示地区信息（🇺🇸 美国），延迟测速由客户端配置文件内置的 `url-test` 完成。
+3. **隐私安全**：所有处理在浏览器本地完成，节点数据不上传任何服务器。
 4. **示例数据**：点击"加载示例"可查看支持的输入格式，示例中的域名（us.example.com 等）为虚构数据，仅供格式参考。
 5. **文件格式**：
    - CSV：`IP,端口,备注,国家,国家代码`
