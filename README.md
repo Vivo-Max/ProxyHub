@@ -4,7 +4,7 @@
 
 ## 在线演示
 
-https://l26t3xnfpx7mu.ok.kimi.link
+https://vivo-max.github.io/ProxyHub/
 
 ## 界面预览
 
