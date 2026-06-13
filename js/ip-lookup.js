@@ -148,44 +148,155 @@ class IpLookup {
   }
 
   // ===== 本地模式：仅获取地理位置（无延迟探测）=====
-  static async getGeoInfo(ip) {
-    // 尝试 geojs.io
+  static async getGeoInfo(host) {
+    // 1. 先判断是否是域名，如果是则通过 DoH 解析到 IP
+    let targetIP = host;
+    if (!this.isIPAddress(host)) {
+      // 先尝试域名关键词匹配
+      const keywordMatch = this.matchDomainKeyword(host);
+      if (keywordMatch.countryCode) return keywordMatch;
+
+      // 通过 DNS over HTTPS 解析域名
+      try {
+        const resolvedIP = await this.resolveDNS(host);
+        if (resolvedIP) targetIP = resolvedIP;
+      } catch (e) {
+        // DNS 解析失败，返回域名关键词保底结果
+        return this.matchDomainKeyword(host);
+      }
+    }
+
+    // 2. 用 IP 查询地理位置
     try {
       const resp = await fetch(
-        `https://get.geojs.io/v1/ip/country/${encodeURIComponent(ip)}.json`,
+        `https://get.geojs.io/v1/ip/country/${encodeURIComponent(targetIP)}.json`,
         { signal: AbortSignal.timeout(3000) }
       );
       const data = await resp.json();
       const cc = (data.country || '').toUpperCase();
-      return {
-        countryCode: cc,
-        countryName: COUNTRY_NAME[cc] || '',
-        city: '',
-        colo: '',
-        latency: null,
-        method: ''
-      };
-    } catch (e) {
-      // fallback: ipapi.co
-      try {
-        const resp = await fetch(
-          `https://ipapi.co/${encodeURIComponent(ip)}/json/`,
-          { signal: AbortSignal.timeout(3000) }
-        );
-        const data = await resp.json();
-        const cc = (data.country_code || '').toUpperCase();
+      if (cc && cc !== 'UNKNOWN') {
         return {
           countryCode: cc,
-          countryName: data.country_name || COUNTRY_NAME[cc] || '',
-          city: '',
-          colo: '',
+          countryName: COUNTRY_NAME[cc] || '',
+          city: '', colo: '',
           latency: null,
           method: ''
         };
-      } catch (e2) {
-        return { countryCode: '', countryName: '', city: '', colo: '', latency: null, method: '' };
+      }
+    } catch (e) { /* 忽略 */ }
+
+    // fallback: ipapi.co
+    try {
+      const resp = await fetch(
+        `https://ipapi.co/${encodeURIComponent(targetIP)}/json/`,
+        { signal: AbortSignal.timeout(3000) }
+      );
+      const data = await resp.json();
+      const cc = (data.country_code || '').toUpperCase();
+      if (cc) {
+        return {
+          countryCode: cc,
+          countryName: data.country_name || COUNTRY_NAME[cc] || '',
+          city: '', colo: '',
+          latency: null,
+          method: ''
+        };
+      }
+    } catch (e2) { /* 忽略 */ }
+
+    // 都失败了，返回域名关键词保底
+    return this.matchDomainKeyword(host);
+  }
+
+  // 判断是否是 IP 地址
+  static isIPAddress(str) {
+    return /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(str) ||
+           /^[0-9a-fA-F:]+$/.test(str);
+  }
+
+  // DNS over HTTPS 解析域名到 IP
+  static async resolveDNS(domain) {
+    // Cloudflare DoH
+    try {
+      const resp = await fetch(
+        `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}&type=A`,
+        {
+          headers: { 'Accept': 'application/dns-json' },
+          signal: AbortSignal.timeout(3000)
+        }
+      );
+      const data = await resp.json();
+      if (data.Answer && data.Answer.length > 0) {
+        const aRecord = data.Answer.find(r => r.type === 1);
+        if (aRecord) return aRecord.data;
+      }
+    } catch (e) { /* 忽略 */ }
+
+    // fallback: Google DoH
+    try {
+      const resp = await fetch(
+        `https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=A`,
+        { signal: AbortSignal.timeout(3000) }
+      );
+      const data = await resp.json();
+      if (data.Answer && data.Answer.length > 0) {
+        const aRecord = data.Answer.find(r => r.type === 1);
+        if (aRecord) return aRecord.data;
+      }
+    } catch (e) { /* 忽略 */ }
+
+    return null;
+  }
+
+  // 域名关键词匹配国家
+  static matchDomainKeyword(domain) {
+    const domainLower = domain.toLowerCase();
+
+    const keywordMap = {
+      '.hk': 'HK', 'hongkong': 'HK', 'hong-kong': 'HK', 'hkg': 'HK', 'hkt': 'HK',
+      '.sg': 'SG', 'singapore': 'SG', 'sgp': 'SG',
+      '.jp': 'JP', 'japan': 'JP', 'tokyo': 'JP', 'osaka': 'JP', 'tyo': 'JP',
+      '.us': 'US', 'usa': 'US', 'america': 'US', 'lax': 'US', 'sfo': 'US', 'nyc': 'US',
+      '.uk': 'GB', 'british': 'GB', 'london': 'GB',
+      '.de': 'DE', 'germany': 'DE', 'frankfurt': 'DE', 'fra': 'DE',
+      '.kr': 'KR', 'korea': 'KR', 'seoul': 'KR',
+      '.tw': 'TW', 'taiwan': 'TW', 'tpe': 'TW',
+      '.au': 'AU', 'australia': 'AU', 'sydney': 'AU',
+      '.nl': 'NL', 'netherlands': 'NL', 'amsterdam': 'NL',
+      '.fr': 'FR', 'france': 'FR', 'paris': 'FR',
+      '.ca': 'CA', 'canada': 'CA',
+      '.in': 'IN', 'india': 'IN', 'mumbai': 'IN', 'bom': 'IN',
+      '.br': 'BR', 'brazil': 'BR', 'sao': 'BR',
+      '.ru': 'RU', 'russia': 'RU', 'moscow': 'RU',
+      '.tr': 'TR', 'turkey': 'TR', 'istanbul': 'TR',
+      '.ae': 'AE', 'dubai': 'AE', 'uae': 'AE',
+      '.vn': 'VN', 'vietnam': 'VN', 'viet': 'VN',
+      '.th': 'TH', 'thailand': 'TH',
+      '.my': 'MY', 'malaysia': 'MY',
+      '.id': 'ID', 'indonesia': 'ID',
+      '.ph': 'PH', 'philippines': 'PH',
+      '.pl': 'PL', 'poland': 'PL',
+      '.se': 'SE', 'sweden': 'SE', 'stockholm': 'SE',
+      '.ch': 'CH', 'switzerland': 'CH', 'zurich': 'CH',
+      '.it': 'IT', 'italy': 'IT', 'milan': 'IT',
+      '.es': 'ES', 'spain': 'ES', 'madrid': 'ES',
+      '.za': 'ZA', 'southafrica': 'ZA',
+      '.cn': 'CN', 'china': 'CN',
+    };
+
+    for (const [keyword, code] of Object.entries(keywordMap)) {
+      if (domainLower.includes(keyword)) {
+        return {
+          countryCode: code,
+          countryName: COUNTRY_NAME[code] || '',
+          city: '', colo: '',
+          latency: null,
+          method: 'domain-keyword'
+        };
       }
     }
+
+    return { countryCode: '', countryName: '', city: '', colo: '', latency: null, method: '' };
   }
 
   static isPrivateIP(ip) {

@@ -10,6 +10,23 @@ class UIController {
     this.initTheme();
     this.bindEvents();
     this.loadAppearanceSettings();
+    this.initNavScroll();
+  }
+
+  // 检测导航标签是否溢出，控制居中/滚动样式
+  initNavScroll() {
+    const checkNav = () => {
+      const nav = document.querySelector('.nav-tabs');
+      if (!nav) return;
+      // 当内容宽度大于容器宽度时，添加 has-scroll 类
+      if (nav.scrollWidth > nav.clientWidth + 2) {
+        nav.classList.add('has-scroll');
+      } else {
+        nav.classList.remove('has-scroll');
+      }
+    };
+    checkNav();
+    window.addEventListener('resize', checkNav);
   }
 
   initTheme() {

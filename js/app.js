@@ -546,7 +546,7 @@ class App {
     }
     const subName = this.getConfigOptions().subName || 'ProxyHub订阅';
     const safeSubName = String(subName).trim().replace(/[\\/:*?"<>|]/g, '_') || 'proxyhub';
-    const filename = `${safeSubName}_${this.currentClient}${ext}`;
+    const filename = `${safeSubName}${ext}`;
     FileHandler.download(filename, this.currentConfig, mime);
     this.showToast(`已下载 ${filename}`, 'success');
   }
