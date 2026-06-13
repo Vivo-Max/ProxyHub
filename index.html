@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProxyHub - 智能代理节点管理工具</title>
+    <meta name="description" content="ProxyHub 是一款专业的代理节点管理工具，支持 VLESS、VMess、SS、Trojan 等协议的解析与多客户端配置生成。">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+        }
+    </script>
+    <link rel="stylesheet" href="css/tailwind.min.css?v=1781354241">
+    <link rel="stylesheet" href="css/main.css?v=1781354241">
+    <link rel="stylesheet" href="css/dark-mode.css?v=1781354241">
+    <link rel="stylesheet" href="css/responsive.css?v=1781354241">
+</head>
+<body class="font-sans">
+    <!-- 背景层 -->
+    <div class="bg-layer" id="bgLayer"></div>
+    <div class="bg-vignette" id="bgVignette"></div>
+
+    <!-- 顶部操作栏 -->
+    <div class="top-actions">
+        <button id="themeToggle" class="top-action-btn" type="button" title="切换主题" aria-label="切换主题">
+            <span id="themeIcon">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon-light h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon-dark h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+            </span>
+        </button>
+        <button id="appearanceModalBtn" class="top-action-btn" type="button" title="界面外观" aria-label="界面外观">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+        </button>
+        <button id="examplesModalBtn" class="top-action-btn" type="button" title="格式示例" aria-label="格式示例">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="main-container">
+        <!-- 标题区域 -->
+        <header class="site-header">
+            <div class="site-brand">
+                <img src="assets/logo.svg" alt="ProxyHub" class="site-logo">
+                <h1 class="site-title">ProxyHub</h1>
+            </div>
+            <p class="site-subtitle">智能代理节点管理工具</p>
+        </header>
+
+        <!-- 导航标签 -->
+        <nav class="nav-tabs">
+            <a href="#converter" class="nav-tab active" data-section="converter">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                节点转换
+            </a>
+            <a href="#features" class="nav-tab" data-section="features">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                功能特性
+            </a>
+            <a href="#guide" class="nav-tab" data-section="guide">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                使用指南
+            </a>
+            <a href="https://github.com/yourname/proxyhub" target="_blank" class="nav-tab">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+                GitHub
+            </a>
+        </nav>
+
+        <!-- 节点转换器区域 -->
+        <section id="converter" class="content-section">
+            <!-- 统计栏 -->
+            <div class="stats-bar" id="stats">
+                <div class="stat-card glass-card">
+                    <span class="stat-value" id="statTotal">0</span>
+                    <span class="stat-label">总节点</span>
+                </div>
+                <div class="stat-card glass-card">
+                    <span class="stat-value" id="statVless">0</span>
+                    <span class="stat-label">VLESS</span>
+                </div>
+                <div class="stat-card glass-card">
+                    <span class="stat-value" id="statVmess">0</span>
+                    <span class="stat-label">VMess</span>
+                </div>
+                <div class="stat-card glass-card">
+                    <span class="stat-value" id="statSs">0</span>
+                    <span class="stat-label">SS</span>
+                </div>
+                <div class="stat-card glass-card">
+                    <span class="stat-value" id="statSocks5">0</span>
+                    <span class="stat-label">SOCKS5</span>
+                </div>
+                <div class="stat-card glass-card">
+                    <span class="stat-value" id="statTrojan">0</span>
+                    <span class="stat-label">Trojan</span>
+                </div>
+            </div>
+
+            <!-- 输入/输出面板 -->
+            <div class="converter-grid">
+                <!-- 输入面板 -->
+                <div class="glass-card input-panel" id="inputPanel">
+                    <div class="panel-header">
+                        <h3 class="panel-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            输入节点
+                        </h3>
+                        <button class="btn-icon" id="clearBtn" title="清空" type="button">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="panel-body">
+                        <!-- 文件拖拽区 -->
+                        <div class="drop-zone" id="dropZone">
+                            <div class="drop-zone-content">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 drop-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <p class="drop-text">拖拽文件到此处，或 <span class="drop-highlight">点击上传</span></p>
+                                <p class="drop-hint">支持 .txt / .csv / .yaml / .json</p>
+                            </div>
+                            <input type="file" id="fileInput" accept=".txt,.csv,.yaml,.yml,.json" hidden>
+                        </div>
+
+                        <!-- 模板输入 -->
+                        <div class="form-group">
+                            <label class="form-label" for="templateInput">模板链接 / 配置 (config.ini)</label>
+                            <textarea
+                                id="templateInput"
+                                class="form-textarea"
+                                placeholder="粘贴单个节点链接作为模板，例如：&#10;vless://uuid@template-host:443?path=/?ed=2560&ip=64.186.225.82:443&host=vl.pages.dev&type=ws#模板备注&#10;&#10;或粘贴 config.ini 配置：&#10;[VLESS-A]&#10;UUID=xxx&#10;SNI=xxx&#10;PATH=/proxy&#10;SECURITY=tls&#10;TRANSPORT=ws&#10;&#10;留空则使用下方的普通节点解析模式"
+                                spellcheck="false"
+                            ></textarea>
+                        </div>
+
+                        <!-- 协议选择 -->
+                        <div class="form-group">
+                            <label class="form-label" for="protocolSelect">生成协议</label>
+                            <select id="protocolSelect" class="form-select">
+                                <option value="all">全部（仅 config.ini 模式）</option>
+                                <option value="vless">VLESS</option>
+                                <option value="trojan">Trojan</option>
+                                <option value="ss">Shadowsocks</option>
+                            </select>
+                        </div>
+
+                        <!-- 节点输入 -->
+                        <div class="form-group">
+                            <label class="form-label" for="nodeInput">节点列表 (CSV / TXT)</label>
+                            <textarea
+                                id="nodeInput"
+                                class="form-textarea node-textarea"
+                                placeholder="粘贴节点列表，模板将套用到这里每一行：&#10;• CSV: IP,端口,备注,国家,国家代码（支持 SG/JP/US 等）&#10;• TXT: IP:端口#备注 或 IP,端口,备注&#10;• 纯IP: 1.1.1.1:443&#10;&#10;若上方未填写模板，则此处支持混合 URL 解析"
+                                spellcheck="false"
+                            ></textarea>
+                            <div class="input-status" id="inputStatus">
+                                <span class="status-dot ready"></span>
+                                <span class="status-text">就绪，等待输入</span>
+                            </div>
+                        </div>
+
+                        <!-- 操作按钮 -->
+                        <div class="action-buttons">
+                            <button class="btn-secondary" id="parseBtn">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                                生成链接与配置
+                            </button>
+                            <button class="btn-secondary" id="loadExampleBtn">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                加载示例
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 输出面板 -->
+                <div class="glass-card output-panel" id="output" style="display: none;">
+                    <div class="panel-header">
+                        <h3 class="panel-title">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            生成配置
+                        </h3>
+                        <div class="panel-actions">
+                            <button class="btn-icon" id="copyBtn" title="复制" type="button">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                            </button>
+                            <button class="btn-icon" id="downloadBtn" title="下载" type="button">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="panel-body">
+                        <!-- 客户端标签 -->
+                        <div class="client-tabs">
+                            <button class="client-tab active" data-client="clash">
+                                <span class="tab-icon">⚔️</span>
+                                <span class="tab-name">Clash</span>
+                            </button>
+                            <button class="client-tab" data-client="v2rayn">
+                                <span class="tab-icon">📡</span>
+                                <span class="tab-name">V2RayN</span>
+                            </button>
+                            <button class="client-tab" data-client="singbox">
+                                <span class="tab-icon">📦</span>
+                                <span class="tab-name">SingBox</span>
+                            </button>
+
+                        </div>
+
+                        <!-- 配置选项 -->
+                        <div class="config-options" id="configOptions">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">订阅名称</label>
+                                    <input type="text" id="subName" class="form-input" value="ProxyHub订阅" placeholder="自定义订阅名称">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">规则预设</label>
+                                    <select id="rulePreset" class="form-select">
+                                        <option value="balanced">均衡模式（国内外分流）</option>
+                                        <option value="gfwlist">GFW列表模式</option>
+                                        <option value="global">全局代理</option>
+                                        <option value="direct">直连优先</option>
+                                        <option value="acl4ssr">ACL4SSR 规则</option>
+                                        <option value="custom">自定义规则</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group custom-rules-group" id="customRulesGroup" style="display: none;">
+                                <label class="form-label" for="customRules">自定义规则（每行一条 Clash 规则）</label>
+                                <textarea id="customRules" class="form-textarea custom-rules-textarea" placeholder="粘贴 Clash 规则，例如：&#10;DOMAIN,example.com,🚀 节点选择&#10;DOMAIN-SUFFIX,google.com,🚀 节点选择&#10;MATCH,🚀 节点选择" spellcheck="false"></textarea>
+                            </div>
+                            <div class="checkbox-row">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="udpRelay" checked>
+                                    <span class="checkmark"></span>
+                                    启用 UDP 转发
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="tcpFastOpen">
+                                    <span class="checkmark"></span>
+                                    TCP Fast Open
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- 配置预览 -->
+                        <div class="preview-area">
+                            <pre id="configPreview" class="config-preview"></pre>
+                        </div>
+
+                        <!-- 节点列表 -->
+                        <div class="node-list-section" id="nodeListSection">
+                            <h4 class="subsection-title">节点列表</h4>
+                            <div class="node-list" id="nodeList"></div>
+                            <button class="btn-text" id="autoIdentifyBtn" type="button" style="display: none;">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                自动识别国家
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 功能特性区域 -->
+        <section id="features" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">功能特性</h2>
+                <p class="section-subtitle">强大而简洁的代理节点管理体验</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon-wrap c1">🔐</div>
+                    <h3 class="feature-title">多协议支持</h3>
+                    <p class="feature-desc">原生支持 VLESS、VMess、Shadowsocks、SOCKS5、Trojan 等主流代理协议，覆盖绝大多数使用场景。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon-wrap c2">⚡</div>
+                    <h3 class="feature-title">实时解析转换</h3>
+                    <p class="feature-desc">纯前端处理，节点数据不上传服务器。粘贴即解析，输入即输出，零延迟响应。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon-wrap c3">🎨</div>
+                    <h3 class="feature-title">多客户端兼容</h3>
+                    <p class="feature-desc">一键生成 Clash、V2RayN、SingBox 等主流客户端配置文件，规则预设丰富。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon-wrap c4">📋</div>
+                    <h3 class="feature-title">灵活输入方式</h3>
+                    <p class="feature-desc">支持 URL 粘贴、CSV 导入、纯文本批量输入、拖拽文件上传等多种方式导入节点。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon-wrap c5">🏷️</div>
+                    <h3 class="feature-title">智能节点命名</h3>
+                    <p class="feature-desc">自动识别节点所在国家/地区，添加国旗 Emoji 前缀，自动编号去重，清晰易读。</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon-wrap c6">🌙</div>
+                    <h3 class="feature-title">深色模式</h3>
+                    <p class="feature-desc">内置浅色/深色主题，跟随系统偏好或手动切换，长时间使用更舒适。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 使用指南区域 -->
+        <section id="guide" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">使用指南</h2>
+                <p class="section-subtitle">三步轻松完成节点转换</p>
+            </div>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">输入节点</h3>
+                    <p class="step-desc">粘贴节点分享链接，支持混合多种协议。也可拖拽上传 CSV/TXT 文件，或直接输入 host:port 格式。</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">选择客户端</h3>
+                    <p class="step-desc">点击目标客户端标签（Clash/V2RayN/SingBox），按需调整订阅名称和规则预设。</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">获取配置</h3>
+                    <p class="step-desc">预览生成的配置文件，确认无误后点击下载。配置文件可直接导入对应客户端使用。</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="site-footer">
+            <div class="footer-brand">
+                <img src="assets/logo.svg" alt="" class="footer-logo">
+                <span>ProxyHub</span>
+            </div>
+            <p class="footer-desc">开源、免费、安全的代理节点管理工具</p>
+            <div class="footer-links">
+                <a href="https://github.com/yourname/proxyhub" target="_blank">GitHub</a>
+                <a href="#" id="feedbackLink">问题反馈</a>
+                <a href="#" id="aboutLink">关于</a>
+            </div>
+            <p class="footer-copyright">MIT License · 使用本工具请遵守当地法律法规</p>
+        </footer>
+    </div>
+
+    <!-- 界面外观设置模态框 -->
+    <div id="appearanceModal" class="modal" style="display: none;">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                    界面外观
+                </h3>
+                <button class="modal-close" id="closeAppearanceModal" type="button" aria-label="关闭">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- 设置标签页 -->
+                <div class="settings-tabs">
+                    <button class="settings-tab active" data-tab="settings-panel" type="button">面板</button>
+                    <button class="settings-tab" data-tab="settings-wallpaper" type="button">壁纸</button>
+                </div>
+
+                <!-- 面板设置 -->
+                <div id="settings-panel" class="settings-tab-content active">
+                    <div class="settings-group">
+                        <div class="settings-row">
+                            <label class="settings-label">面板透明</label>
+                            <div class="slider-control">
+                                <span id="bgOpacityValue">46%</span>
+                                <input type="range" id="bgOpacity" class="slider" min="0" max="100" value="46" step="5">
+                            </div>
+                        </div>
+                        <div class="settings-row">
+                            <label class="settings-label">磨砂强度</label>
+                            <div class="slider-control">
+                                <span id="bgBlurValue">20px</span>
+                                <input type="range" id="bgBlur" class="slider" min="0" max="30" value="20" step="1">
+                            </div>
+                        </div>
+                        <div class="settings-row toggle-row">
+                            <label class="settings-label">文字反色</label>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="textInvert">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 壁纸设置 -->
+                <div id="settings-wallpaper" class="settings-tab-content">
+                    <div class="settings-group">
+                        <div class="settings-row">
+                            <label class="settings-label">背景类型</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="bgType" value="gradient" id="bgTypeGradient" class="sr-only" checked>
+                                    <span class="radio-label">默认渐变</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="bgType" value="image" id="bgTypeImage" class="sr-only">
+                                    <span class="radio-label">自定义图片</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="settings-group">
+                        <div class="upload-zone" id="bgUploadZone">
+                            <input type="file" id="bgImageInput" accept=".jpg,.jpeg,.png,.gif,.webp,.bmp,.svg" hidden>
+                            <div class="upload-content">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 upload-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <p class="upload-text">点击或拖拽上传</p>
+                                <p class="upload-hint">JPG / PNG / GIF / WebP / BMP / SVG</p>
+                            </div>
+                        </div>
+                        <div class="upload-status" id="bgUploadStatus" style="display: none;">
+                            <span class="status-text">已上传背景图片</span>
+                            <button class="btn-text" id="bgResetBtn" type="button">恢复默认</button>
+                        </div>
+                    </div>
+                    <div class="settings-group">
+                        <div class="settings-row">
+                            <label class="settings-label">显示方式</label>
+                            <select id="bgImageSize" class="form-select">
+                                <option value="cover">覆盖</option>
+                                <option value="contain">适应</option>
+                                <option value="auto">平铺</option>
+                                <option value="center">居中</option>
+                            </select>
+                        </div>
+                        <div class="settings-row">
+                            <label class="settings-label">背景固定</label>
+                            <select id="bgImageAttachment" class="form-select">
+                                <option value="fixed">固定</option>
+                                <option value="scroll">滚动</option>
+                            </select>
+                        </div>
+                        <div class="settings-row">
+                            <label class="settings-label">背景模糊</label>
+                            <div class="slider-control">
+                                <span id="bgImageBlurValue">0px</span>
+                                <input type="range" id="bgImageBlur" class="slider" min="0" max="30" value="0" step="1">
+                            </div>
+                        </div>
+                        <div class="settings-row">
+                            <label class="settings-label">背景亮度</label>
+                            <div class="slider-control">
+                                <span id="bgImageBrightnessValue">100%</span>
+                                <input type="range" id="bgImageBrightness" class="slider" min="20" max="200" value="100" step="5">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancelAppearanceBtn" type="button">取消</button>
+                <button class="btn-primary" id="saveAppearanceBtn" type="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    保存设置
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 格式示例模态框 -->
+    <div id="examplesModal" class="modal" style="display: none;">
+        <div class="modal-backdrop"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    支持的输入格式
+                </h3>
+                <button class="modal-close" id="closeExamplesModal" type="button" aria-label="关闭">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="example-tabs">
+                    <button class="example-tab active" data-example="url">URL 格式</button>
+                    <button class="example-tab" data-example="csv">CSV 格式</button>
+                    <button class="example-tab" data-example="text">纯文本格式</button>
+                </div>
+                <div class="example-content active" data-example="url">
+                    <pre class="code-block"><code># VLESS
+vless://12345678-1234-1234-1234-123456789abc@example.com:443?encryption=none&security=tls&type=ws&path=/path&host=cdn.example.com&sni=example.com#美国节点
+
+# VMess
+vmess://eyJhZGQiOiJleGFtcGxlLmNvbSIsImFpZCI6IjAiLCJob3N0IjoiY2RuLmV4YW1wbGUuY29tIiwiaWQiOiIxMjM0NTY3OC0xMjM0LTEyMzQtMTIzNC0xMjM0NTY3ODlhYmMiLCJuZXQiOiJ3cyIsInBhdGgiOiIvcGF0aCIsInBvcnQiOiI0NDMiLCJwcyI6Iue+juWbvSIsInRscyI6InRscyIsInR5cGUiOiJub25lIiwidiI6IjIifQ==
+
+# Trojan
+trojan://mypassword@example.com:443?security=tls&type=tcp&sni=example.com#日本节点
+
+# Shadowsocks
+ss://YWVzLTI1Ni1nY206cGFzc3dvcmQ=@example.com:8388#新加坡节点</code></pre>
+                </div>
+                <div class="example-content" data-example="csv">
+                    <pre class="code-block"><code>IP,端口,备注,国家,国家代码
+192.168.1.1,443,美国节点,美国,US
+10.0.0.1,8388,日本节点,日本,JP
+example.com,443,新加坡节点,新加坡,SG</code></pre>
+                </div>
+                <div class="example-content" data-example="text">
+                    <pre class="code-block"><code># host:port#备注 格式
+example.com:443#美国节点
+192.168.1.1:8388#日本节点
+
+# host,port,备注 格式
+example.com,443,美国节点
+192.168.1.1,8388,日本节点</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 容器 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- 加载遮罩 -->
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">正在解析...</p>
+    </div>
+
+    <!-- 脚本 -->
+    <script src="js/country-data.js?v=1781354241"></script>
+    <script src="js/clash-rules.js?v=1781354241"></script>
+    <script src="js/protocol-parser.js?v=1781354241"></script>
+    <script src="js/config-generator.js?v=1781354241"></script>
+    <script src="js/file-handler.js?v=1781354241"></script>
+    <script src="js/template-generator.js?v=1781354241"></script>
+    <script src="js/ui-controller.js?v=1781354241"></script>
+    <script src="js/ip-lookup.js?v=1781354241"></script>
+    <script src="js/app.js?v=1781354241"></script>
+
+    <script>
+        // 弹窗控制
+        (function () {
+            function openModal(id) {
+                const modal = document.getElementById(id);
+                if (modal) {
+                    modal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+            function closeModal(id) {
+                const modal = document.getElementById(id);
+                if (modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+            }
+
+            document.getElementById('appearanceModalBtn')?.addEventListener('click', () => openModal('appearanceModal'));
+            document.getElementById('examplesModalBtn')?.addEventListener('click', () => openModal('examplesModal'));
+
+            document.getElementById('closeAppearanceModal')?.addEventListener('click', () => closeModal('appearanceModal'));
+            document.getElementById('cancelAppearanceBtn')?.addEventListener('click', () => closeModal('appearanceModal'));
+            document.getElementById('saveAppearanceBtn')?.addEventListener('click', () => closeModal('appearanceModal'));
+            document.getElementById('closeExamplesModal')?.addEventListener('click', () => closeModal('examplesModal'));
+
+            // 点击遮罩关闭
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('modal-backdrop')) {
+                        closeModal(modal.id);
+                    }
+                });
+            });
+
+            // ESC 关闭
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    document.querySelectorAll('.modal').forEach(m => {
+                        if (getComputedStyle(m).display !== 'none') closeModal(m.id);
+                    });
+                }
+            });
+
+            // 设置标签页切换
+            document.querySelectorAll('.settings-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetTab = tab.dataset.tab;
+                    document.querySelectorAll('.settings-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.settings-tab-content').forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    const content = document.getElementById(targetTab);
+                    if (content) content.classList.add('active');
+                });
+            });
+
+            // 格式示例标签切换
+            document.querySelectorAll('.example-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const example = tab.dataset.example;
+                    document.querySelectorAll('.example-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.example-content').forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    const content = document.querySelector(`.example-content[data-example="${example}"]`);
+                    if (content) content.classList.add('active');
+                });
+            });
+
+            // 导航标签平滑滚动
+            document.querySelectorAll('.nav-tab[href^="#"]').forEach(tab => {
+                tab.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = tab.getAttribute('href');
+                    const target = document.querySelector(targetId);
+                    if (target) {
+                        // 更新激活状态
+                        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        // 平滑滚动
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+
+            // 滚动时更新导航激活状态
+            const sections = document.querySelectorAll('.content-section');
+            const navTabs = document.querySelectorAll('.nav-tab[data-section]');
+            
+            const observerOptions = {
+                root: null,
+                rootMargin: '-20% 0px -80% 0px',
+                threshold: 0
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.id;
+                        navTabs.forEach(tab => {
+                            tab.classList.toggle('active', tab.dataset.section === id);
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => observer.observe(section));
+        })();
+    </script>
+</body>
+</html>
