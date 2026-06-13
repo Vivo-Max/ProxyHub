@@ -1,0 +1,471 @@
+/* ============================================
+   ProxyHub - Dark Mode Styles
+   ============================================ */
+
+/* ---- Dark Background ---- */
+.dark .bg-layer {
+  background:
+    radial-gradient(at 0% 0%, rgba(96, 165, 250, 0.16) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(167, 139, 250, 0.14) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(96, 165, 250, 0.12) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(167, 139, 250, 0.10) 0px, transparent 50%),
+    linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+}
+
+/* Dark scrollbar */
+.dark ::-webkit-scrollbar-thumb {
+  background: #4b5563;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* ---- Dark Glass Card ---- */
+.dark .glass-card {
+  background: rgba(30, 41, 59, 0.52);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.dark .glass-card:hover {
+  background: rgba(30, 41, 59, 0.72);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ---- Dark Text Colors ---- */
+.dark .site-title,
+.dark .section-title,
+.dark .panel-title,
+.dark .feature-title,
+.dark .step-title,
+.dark .subsection-title,
+.dark .settings-label,
+.dark .form-label,
+.dark .modal-title,
+.dark .footer-brand {
+  color: #f3f4f6;
+}
+
+.dark .site-subtitle,
+.dark .section-subtitle,
+.dark .feature-desc,
+.dark .step-desc,
+.dark .footer-desc,
+.dark .footer-copyright,
+.dark .drop-text,
+.dark .drop-hint,
+.dark .upload-text,
+.dark .upload-hint,
+.dark .status-text,
+.dark .input-status,
+.dark .node-address {
+  color: #9ca3af;
+}
+
+/* ---- Dark Form Elements ---- */
+.dark .form-input,
+.dark .form-textarea,
+.dark .form-select {
+  background: var(--card-bg);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #f3f4f6;
+}
+
+.dark .form-input:focus,
+.dark .form-textarea:focus,
+.dark .form-select:focus {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+  background: var(--card-bg-hover);
+}
+
+.dark .form-input::placeholder,
+.dark .form-textarea::placeholder {
+  color: #6b7280;
+}
+
+/* ---- Dark Checkbox ---- */
+.dark .checkbox-label input[type="checkbox"] {
+  background: var(--card-bg);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark .checkbox-label {
+  color: #d1d5db;
+}
+
+/* ---- Dark Buttons ---- */
+.dark .btn-secondary {
+  background: var(--card-bg);
+  color: #d1d5db;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .btn-secondary:hover {
+  background: var(--card-bg-hover);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.dark .btn-icon {
+  background: var(--card-bg);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #9ca3af;
+}
+
+.dark .btn-icon:hover {
+  background: var(--card-bg-hover);
+  color: #f3f4f6;
+}
+
+.dark .btn-text {
+  background: rgba(96, 165, 250, 0.1);
+  color: #60a5fa;
+}
+
+.dark .btn-text:hover {
+  background: rgba(96, 165, 250, 0.2);
+}
+
+/* ---- Dark Top Actions ---- */
+.dark .top-action-btn {
+  background: rgba(30, 41, 59, 0.5);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: rgba(229, 231, 235, 0.82);
+}
+
+.dark .top-action-btn:hover {
+  background: rgba(30, 41, 59, 0.8);
+  color: #f3f4f6;
+}
+
+/* ---- Dark Nav Tabs ---- */
+.dark .nav-tab {
+  background: rgba(255, 255, 255, 0.05);
+  color: #9ca3af;
+}
+
+.dark .nav-tab:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e5e7eb;
+}
+
+.dark .nav-tab.active {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+/* ---- Dark Client Tabs ---- */
+.dark .client-tabs {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.dark .client-tab:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #d1d5db;
+}
+
+.dark .client-tab.active {
+  background: rgba(30, 41, 59, 0.8);
+  color: #60a5fa;
+}
+
+/* ---- Dark Drop Zone ---- */
+.dark .drop-zone {
+  background: var(--card-bg);
+  border-color: rgba(96, 165, 250, 0.2);
+}
+
+.dark .drop-zone:hover {
+  background: var(--card-bg-hover);
+  border-color: var(--primary-light);
+}
+
+/* ---- Dark Latency Row ---- */
+.dark .latency-row {
+  background: var(--card-bg);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* ---- Dark Preview Area ---- */
+.dark .preview-area {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.dark .config-preview {
+  color: #d1d5db;
+}
+
+/* ---- Dark Feature Cards (frosted glass with transparency control) ---- */
+.dark .feature-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(var(--frosted-blur));
+  -webkit-backdrop-filter: blur(var(--frosted-blur));
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 1px rgba(0, 0, 0, 0.3);
+}
+
+.dark .feature-card:hover {
+  background: var(--card-bg-hover);
+  backdrop-filter: blur(var(--frosted-blur-hover));
+  -webkit-backdrop-filter: blur(var(--frosted-blur-hover));
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35), 0 0 1px rgba(0, 0, 0, 0.4);
+}
+
+.dark .feature-title {
+  color: #f3f4f6;
+}
+
+.dark .feature-desc {
+  color: #9ca3af;
+}
+
+.dark .feature-icon-wrap.c1 { background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(59, 130, 246, 0.2) 100%); }
+.dark .feature-icon-wrap.c2 { background: linear-gradient(135deg, rgba(217, 119, 6, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%); }
+.dark .feature-icon-wrap.c3 { background: linear-gradient(135deg, rgba(219, 39, 119, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%); }
+.dark .feature-icon-wrap.c4 { background: linear-gradient(135deg, rgba(5, 150, 105, 0.2) 0%, rgba(16, 185, 129, 0.2) 100%); }
+.dark .feature-icon-wrap.c5 { background: linear-gradient(135deg, rgba(79, 70, 229, 0.2) 0%, rgba(99, 102, 241, 0.2) 100%); }
+.dark .feature-icon-wrap.c6 { background: linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%); }
+
+/* ---- Dark Step Cards (frosted glass with transparency control) ---- */
+.dark .step-card {
+  background: var(--card-bg);
+  backdrop-filter: blur(var(--frosted-blur));
+  -webkit-backdrop-filter: blur(var(--frosted-blur));
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 1px rgba(0, 0, 0, 0.3);
+}
+
+.dark .step-card:hover {
+  background: var(--card-bg-hover);
+  backdrop-filter: blur(var(--frosted-blur-hover));
+  -webkit-backdrop-filter: blur(var(--frosted-blur-hover));
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35), 0 0 1px rgba(0, 0, 0, 0.4);
+}
+
+.dark .step-title {
+  color: #f3f4f6;
+}
+
+.dark .step-desc {
+  color: #9ca3af;
+}
+
+.dark .step-number {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+}
+
+/* ---- Dark Node List ---- */
+.dark .node-item {
+  background: var(--card-bg);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.dark .node-protocol.vless { background: rgba(37, 99, 235, 0.15); color: #60a5fa; }
+.dark .node-protocol.vmess { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+.dark .node-protocol.ss { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+.dark .node-protocol.socks5 { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+.dark .node-protocol.trojan { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+
+.dark .node-latency.unknown {
+  color: #6b7280;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ---- Dark Settings ---- */
+.dark .settings-tabs {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.dark .settings-tab:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #d1d5db;
+}
+
+.dark .settings-tab.active {
+  background: rgba(30, 41, 59, 0.8);
+  color: #60a5fa;
+}
+
+.dark .settings-row {
+  border-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark .slider {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.dark .toggle-slider {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.dark .radio-label {
+  background: rgba(255, 255, 255, 0.05);
+  color: #9ca3af;
+}
+
+.dark .radio-option:hover .radio-label {
+  background: rgba(255, 255, 255, 0.08);
+  color: #d1d5db;
+}
+
+.dark .radio-option input:checked + .radio-label {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+}
+
+.dark .upload-zone {
+  background: rgba(30, 41, 59, 0.3);
+  border-color: rgba(96, 165, 250, 0.2);
+}
+
+.dark .upload-zone:hover {
+  background: rgba(96, 165, 250, 0.08);
+}
+
+.dark .upload-status {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.dark .upload-status .status-text {
+  color: #34d399;
+}
+
+/* ---- Dark Example Tabs ---- */
+.dark .example-tabs {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.dark .example-tab:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #d1d5db;
+}
+
+.dark .example-tab.active {
+  background: rgba(30, 41, 59, 0.8);
+  color: #60a5fa;
+}
+
+.dark .code-block {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.dark .code-block code {
+  color: #d1d5db;
+}
+
+/* ---- Dark Modal ---- */
+.dark .modal-content {
+  background: #1e293b;
+}
+
+.dark .modal-header,
+.dark .modal-footer {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.dark .modal-close {
+  color: #9ca3af;
+}
+
+.dark .modal-close:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f3f4f6;
+}
+
+/* ---- Dark Toast ---- */
+.dark .toast {
+  background: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ---- Dark Loading ---- */
+.dark .loading-overlay {
+  background: rgba(15, 23, 42, 0.85);
+}
+
+.dark .loading-text {
+  color: #9ca3af;
+}
+
+/* ---- Dark Panel Header Border ---- */
+.dark .panel-header {
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* ---- Dark Footer Links ---- */
+.dark .footer-links a {
+  color: #9ca3af;
+}
+
+.dark .footer-links a:hover {
+  color: #60a5fa;
+}
+
+/* ---- Light mode + Custom Wallpaper: solid text clarity ---- */
+body.custom-wallpaper .form-label,
+body.custom-wallpaper .panel-title,
+body.custom-wallpaper .section-title,
+body.custom-wallbsite .feature-title,
+body.custom-wallpaper .step-title {
+  color: #111827;
+}
+
+body.custom-wallpaper .form-input,
+body.custom-wallpaper .form-textarea,
+body.custom-wallpaper .form-select {
+  background: rgba(255, 255, 255, 0.85);
+  color: #1f2937;
+}
+
+body.custom-wallpaper .drop-zone {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+body.custom-wallpaper .latency-row {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* ---- Dark with Custom Wallpaper ---- */
+.dark body.custom-wallpaper .bg-layer::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 0;
+}
+
+.dark body.custom-wallpaper .glass-card {
+  background: var(--card-bg);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark body.custom-wallpaper .glass-card:hover {
+  background: var(--card-bg-hover);
+}
+
+.dark body.custom-wallpaper .form-input,
+.dark body.custom-wallpaper .form-textarea,
+.dark body.custom-wallpaper .form-select {
+  background: var(--card-bg);
+  color: #f3f4f6;
+}
+
+.dark body.custom-wallpaper .drop-zone {
+  background: var(--card-bg);
+}
+
+/* ---- Dark Custom Rules Group ---- */
+.dark .custom-rules-textarea {
+  background: rgba(15, 23, 42, 0.5);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #f3f4f6;
+}
+
+.dark .custom-rules-textarea:focus {
+  border-color: var(--primary-light);
+}
