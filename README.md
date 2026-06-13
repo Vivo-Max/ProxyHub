@@ -6,6 +6,16 @@
 
 https://l26t3xnfpx7mu.ok.kimi.link
 
+## 界面预览
+
+| 浅色模式（自定义壁纸） | 深色模式（节点解析生成） |
+|:---:|:---:|
+| ![浅色模式](https://raw.githubusercontent.com/Vivo-Max/ProxyHub/main/icon/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202026-06-13%20220434.png) | ![深色模式](https://raw.githubusercontent.com/Vivo-Max/ProxyHub/main/icon/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202026-06-13%20220617.png) |
+
+| 深色模式（自定义壁纸） | 界面外观设置 |
+|:---:|:---:|
+| ![深色模式壁纸](https://raw.githubusercontent.com/Vivo-Max/ProxyHub/main/icon/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202026-06-13%20220738.png) | ![外观设置](https://raw.githubusercontent.com/Vivo-Max/ProxyHub/main/icon/%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE%202026-06-13%20220820.png) |
+
 ## 项目概述
 
 ProxyHub 是一款纯前端运行的代理节点管理工具，支持 VLESS、VMess、Shadowsocks、Trojan 等主流协议的解析与多客户端配置生成。采用 iori-nav 的毛玻璃卡片式 UI 设计，支持浅色/深色主题、自定义壁纸、界面外观调节等个性化功能。
