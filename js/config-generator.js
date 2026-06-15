@@ -139,7 +139,7 @@ ${rulesYaml}`;
     cipher: ${this.yamlSafe(node.params.encryption || 'none')}
     tls: ${node.params.security === 'tls'}
     network: ${this.yamlSafe(node.params.type || 'ws')}
-${node.params.type === 'ws' ? `    ws-opts:\n      path: "${this.yamlSafe(node.params.path || '/')}"\n      headers:\n        Host: ${this.yamlSafe(node.params.host || node.params.sni || node.address)}` : ''}
+${node.params.type === 'ws' ? `    ws-opts:\n      path: "${node.params.path || '/'}"\n      headers:\n        Host: ${this.yamlSafe(node.params.host || node.params.sni || node.address)}` : ''}
 ${node.params.sni ? `    sni: ${this.yamlSafe(node.params.sni)}` : ''}
     udp: ${udp}`;
       case 'vmess':
@@ -149,7 +149,7 @@ ${node.params.sni ? `    sni: ${this.yamlSafe(node.params.sni)}` : ''}
     cipher: ${this.yamlSafe(node.params.scy || 'auto')}
     tls: ${node.params.tls === 'tls'}
     network: ${this.yamlSafe(node.params.net || 'tcp')}
-${(node.params.net === 'ws' || node.params.net === 'h2') ? `    ws-opts:\n      path: "${this.yamlSafe(node.params.path || '/')}"\n      headers:\n        Host: ${this.yamlSafe(node.params.host || node.address)}` : ''}
+${(node.params.net === 'ws' || node.params.net === 'h2') ? `    ws-opts:\n      path: "${node.params.path || '/'}"\n      headers:\n        Host: ${this.yamlSafe(node.params.host || node.address)}` : ''}
     udp: ${udp}`;
       case 'trojan':
         return `${base}
