@@ -25,7 +25,8 @@ class FileHandler {
       code: ['code', '国家代码', 'countrycode', 'cc', '国际代码'],
       city: ['city', '城市'],
       isp: ['isp', '运营商', '线路', 'carrier', 'network'],
-      latency: ['latency', 'delay', 'ping', '延迟', '延时']
+      latency: ['latency', 'delay', 'ping', '延迟', '延时'],
+      speed: ['speed', 'download', 'downloadspeed', 'speedmbps', '下载速度', '速度']
     };
 
     const indices = {};
@@ -55,6 +56,8 @@ class FileHandler {
       const isp = indices.isp !== -1 ? fields[indices.isp] : '';
       const latencyRaw = indices.latency !== -1 ? fields[indices.latency] : '';
       const latency = parseFloat(latencyRaw);
+      const speedRaw = indices.speed !== -1 ? fields[indices.speed] : '';
+      const downloadSpeed = parseFloat(speedRaw);
 
       if (isp) {
         const ispInfo = detectISP(isp);
@@ -69,7 +72,13 @@ class FileHandler {
       }
       if (!remark) remark = '未命名';
 
-      nodes.push({ address, port, remark, latency: isNaN(latency) ? null : latency });
+      nodes.push({
+        address,
+        port,
+        remark,
+        latency: isNaN(latency) ? null : latency,
+        downloadSpeed: isNaN(downloadSpeed) ? null : downloadSpeed
+      });
     }
     return nodes;
   }

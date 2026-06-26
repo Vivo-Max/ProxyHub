@@ -44,6 +44,10 @@ class App {
     this.bindCachedInput('rulePreset', 'ph_rulePreset', 'change', 0, () => this.toggleCustomRules());
     this.bindCachedInput('udpRelay', 'ph_udpRelay', 'change');
     this.bindCachedInput('tcpFastOpen', 'ph_tcpFastOpen', 'change');
+    this.bindCachedInput('latencyFilter', 'ph_latencyFilter', 'change');
+    this.bindCachedInput('latencyThreshold', 'ph_latencyThreshold', 'input');
+    this.bindCachedInput('speedFilter', 'ph_speedFilter', 'change');
+    this.bindCachedInput('speedThreshold', 'ph_speedThreshold', 'input');
     this.bindCachedInput('customRules', 'ph_customRules', 'input');
 
     document.getElementById('copyBtn')?.addEventListener('click', () => this.handleCopy());
@@ -116,6 +120,10 @@ class App {
     restore('rulePreset', 'ph_rulePreset', 'balanced');
     restore('udpRelay', 'ph_udpRelay', true);
     restore('tcpFastOpen', 'ph_tcpFastOpen', false);
+    restore('latencyFilter', 'ph_latencyFilter', false);
+    restore('latencyThreshold', 'ph_latencyThreshold', 300);
+    restore('speedFilter', 'ph_speedFilter', false);
+    restore('speedThreshold', 'ph_speedThreshold', 0);
     restore('customRules', 'ph_customRules', '');
 
     // 恢复客户端选择
@@ -181,8 +189,10 @@ class App {
       const protocol = protocolSelect ? protocolSelect.value : 'all';
       const options = this.getConfigOptions();
       const result = await TemplateGenerator.generate(template, nodesText, protocol, {
-        latencyFilter: options.latencyFilter,
-        latencyThreshold: options.latencyThreshold
+        latencyFilterEnabled: options.latencyFilterEnabled,
+        latencyThresholdMs: options.latencyThresholdMs,
+        speedFilterEnabled: options.speedFilterEnabled,
+        speedThresholdMbps: options.speedThresholdMbps
       });
       if (result && result.text) {
         if (input) {
@@ -337,10 +347,15 @@ class App {
     try {
       const options = this.getConfigOptions();
       const nodes = this.currentNodes;
-      const config = ConfigGenerator.generate(nodes, this.currentClient, options);
-      this.currentConfig = config;
+      const result = ConfigGenerator.generate(nodes, this.currentClient, options);
+      this.currentConfig = result.config;
+      this.currentStats = {
+        nodeCount: result.nodeCount,
+        skippedCount: result.skippedCount,
+        skippedProtocols: result.skippedProtocols
+      };
       const preview = document.getElementById('configPreview');
-      if (preview) preview.textContent = config;
+      if (preview) preview.textContent = result.config;
     } catch (e) {
       console.error('配置生成错误:', e);
       this.showToast(`配置生成失败: ${e.message}`, 'error');
@@ -352,9 +367,31 @@ class App {
     const preset = document.getElementById('rulePreset')?.value || 'balanced';
     const udpRelay = document.getElementById('udpRelay')?.checked ?? true;
     const tcpFastOpen = document.getElementById('tcpFastOpen')?.checked ?? false;
-    const ruleSource = preset === 'custom' ? 'custom' : 'preset';
-    const customRules = ruleSource === 'custom' ? (document.getElementById('customRules')?.value || '') : '';
-    return { subName, preset, udpRelay, tcpFastOpen, ruleSource, customRules };
+
+    const readNumber = (id, fallback) => {
+      const el = document.getElementById(id);
+      if (!el) return fallback;
+      const val = parseFloat(el.value);
+      return isNaN(val) ? fallback : val;
+    };
+    const latencyFilterEnabled = document.getElementById('latencyFilter')?.checked ?? false;
+    const latencyThresholdMs = readNumber('latencyThreshold', 300);
+    const speedFilterEnabled = document.getElementById('speedFilter')?.checked ?? false;
+    const speedThresholdMbps = readNumber('speedThreshold', 0);
+
+    const customRules = preset === 'custom' ? (document.getElementById('customRules')?.value || '') : '';
+    return {
+      subName,
+      preset,
+      rulePreset: preset,
+      udpRelay,
+      tcpFastOpen,
+      latencyFilterEnabled,
+      latencyThresholdMs,
+      speedFilterEnabled,
+      speedThresholdMbps,
+      customRules
+    };
   }
 
   toggleCustomRules() {

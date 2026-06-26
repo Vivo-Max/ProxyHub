@@ -13,26 +13,47 @@ class ConfigGenerator {
   }
 
   static generate(nodes, clientType, options = {}) {
-    const filtered = this.filterNodes(nodes, clientType);
+    const { filtered, skippedCount, skippedProtocols } = this.filterNodes(nodes, clientType, options);
     const named = this.applyNaming(filtered);
+    let config = '';
     switch (clientType) {
-      case 'clash': return this.generateClash(named, options);
-      case 'v2rayn': return this.generateV2rayN(named);
-      case 'singbox': return this.generateSingbox(named, options);
-      case 'flclash': return this.generateFlClash(named, options);
+      case 'clash': config = this.generateClash(named, options); break;
+      case 'v2rayn': config = this.generateV2rayN(named); break;
+      case 'singbox': config = this.generateSingbox(named, options); break;
+      case 'flclash': config = this.generateFlClash(named, options); break;
       default: throw new Error('Unknown client type');
     }
+    return {
+      config,
+      nodeCount: named.length,
+      skippedCount,
+      skippedProtocols: Array.from(skippedProtocols)
+    };
   }
 
-  static filterNodes(nodes, clientType) {
+  static filterNodes(nodes, clientType, options = {}) {
     const support = {
-      clash: ['vless', 'vmess', 'ss', 'trojan'],
-      v2rayn: ['vless', 'vmess', 'ss', 'socks5', 'trojan'],
+      clash: ['vless', 'vmess', 'ss', 'socks5', 'trojan'],
+      v2rayn: ['vless', 'vmess', 'ss', 'trojan'],
       flclash: ['vless', 'vmess', 'ss', 'socks5', 'trojan'],
       singbox: ['vless', 'vmess', 'ss', 'socks5', 'trojan']
     };
     const allowed = support[clientType] || [];
-    return nodes.filter(n => allowed.includes(n.protocol));
+    const unsupported = nodes.filter(n => !allowed.includes(n.protocol));
+    const skippedProtocols = new Set(unsupported.map(n => n.protocol));
+
+    const filtered = nodes.filter(n => allowed.includes(n.protocol)).filter(node => {
+      const latency = node.latency;
+      const latencyOk = options.latencyFilterEnabled && latency != null
+        ? latency > 0 && latency <= options.latencyThresholdMs
+        : true;
+      const speed = node.downloadSpeed;
+      const speedOk = options.speedFilterEnabled && speed != null && speed > 0
+        ? speed >= options.speedThresholdMbps
+        : true;
+      return latencyOk && speedOk;
+    });
+    return { filtered, skippedCount: nodes.length - filtered.length, skippedProtocols };
   }
 
   static applyNaming(nodes) {
@@ -90,15 +111,17 @@ class ConfigGenerator {
     // YAML 安全转义节点名称，防止特殊字符破坏代理组格式
     const proxyDisplayNames = nodes.map(n => this.yamlSafe(n.displayName));
 
+    const rulePreset = options.rulePreset || options.preset || 'balanced';
+    const isCustom = rulePreset === 'custom' || options.ruleSource === 'custom';
     let presetData;
-    if (options.ruleSource === 'custom' && options.customRules) {
+    if (isCustom && options.customRules) {
       presetData = {
         proxyGroups: ClashRules.getDefaultProxyGroups(proxyDisplayNames),
         ruleProviders: '',
         rules: ClashRules.custom(options.customRules)
       };
     } else {
-      presetData = ClashRules.getPresetData(options.preset || 'balanced', proxyDisplayNames);
+      presetData = ClashRules.getPresetData(rulePreset, proxyDisplayNames);
     }
 
     const ruleProvidersSection = presetData.ruleProviders ? `\nrule-providers:\n${presetData.ruleProviders}\n` : '\n';
@@ -128,44 +151,57 @@ ${rulesYaml}`;
 
   static nodeToClashProxy(node, options = {}) {
     const udp = options.udpRelay !== false ? 'true' : 'false';
+    const tfo = options.tcpFastOpen ? '\n    tfo: true' : '';
     const base = `  - name: ${this.yamlSafe(node.displayName)}
     type: ${node.protocol}
     server: ${this.yamlSafe(node.address)}
     port: ${node.port}`;
     switch (node.protocol) {
-      case 'vless':
-        return `${base}
+      case 'vless': {
+        const flowLine = node.params.flow ? `\n    flow: ${this.yamlSafe(node.params.flow)}` : '';
+        const wsOpts = node.params.type === 'ws' ? `
+    ws-opts:
+      path: "${node.params.path || '/'}"
+      headers:
+        Host: ${this.yamlSafe(node.params.host || node.params.sni || node.address)}` : '';
+        const sniLine = node.params.sni ? `\n    sni: ${this.yamlSafe(node.params.sni)}` : '';
+        return `${base}${flowLine}
     uuid: ${this.yamlSafe(node.params.uuid)}
     cipher: ${this.yamlSafe(node.params.encryption || 'none')}
     tls: ${node.params.security === 'tls'}
-    network: ${this.yamlSafe(node.params.type || 'ws')}
-${node.params.type === 'ws' ? `    ws-opts:\n      path: "${node.params.path || '/'}"\n      headers:\n        Host: ${this.yamlSafe(node.params.host || node.params.sni || node.address)}` : ''}
-${node.params.sni ? `    sni: ${this.yamlSafe(node.params.sni)}` : ''}
-    udp: ${udp}`;
-      case 'vmess':
+    network: ${this.yamlSafe(node.params.type || 'ws')}${wsOpts}${sniLine}
+    udp: ${udp}${tfo}`;
+      }
+      case 'vmess': {
+        const wsOpts = (node.params.net === 'ws' || node.params.net === 'h2') ? `
+    ws-opts:
+      path: "${node.params.path || '/'}"
+      headers:
+        Host: ${this.yamlSafe(node.params.host || node.address)}` : '';
         return `${base}
     uuid: ${this.yamlSafe(node.params.id)}
     alterId: ${node.params.aid || 0}
     cipher: ${this.yamlSafe(node.params.scy || 'auto')}
     tls: ${node.params.tls === 'tls'}
-    network: ${this.yamlSafe(node.params.net || 'tcp')}
-${(node.params.net === 'ws' || node.params.net === 'h2') ? `    ws-opts:\n      path: "${node.params.path || '/'}"\n      headers:\n        Host: ${this.yamlSafe(node.params.host || node.address)}` : ''}
-    udp: ${udp}`;
-      case 'trojan':
+    network: ${this.yamlSafe(node.params.net || 'tcp')}${wsOpts}
+    udp: ${udp}${tfo}`;
+      }
+      case 'trojan': {
+        const sniLine = node.params.sni ? `\n    sni: ${this.yamlSafe(node.params.sni)}` : '';
         return `${base}
     password: ${this.yamlSafe(node.params.password || 'your_password')}
     tls: ${node.params.security !== 'none'}
-    network: ${this.yamlSafe(node.params.type || 'tcp')}
-${node.params.sni ? `    sni: ${this.yamlSafe(node.params.sni)}` : ''}
-    udp: ${udp}`;
+    network: ${this.yamlSafe(node.params.type || 'tcp')}${sniLine}
+    udp: ${udp}${tfo}`;
+      }
       case 'ss':
         return `${base}
     cipher: ${this.yamlSafe(node.params.method)}
     password: ${this.yamlSafe(node.params.password)}
-    udp: true`;
+    udp: ${udp}${tfo}`;
       case 'socks5':
         return `${base}
-    udp: ${udp}`;
+    udp: ${udp}${tfo}`;
       default:
         return base;
     }
@@ -182,35 +218,45 @@ ${node.params.sni ? `    sni: ${this.yamlSafe(node.params.sni)}` : ''}
     }
   }
 
+  static formatHostPort(address, port) {
+    if (!address) return `:${port}`;
+    const trimmed = String(address).trim();
+    if (trimmed.startsWith('[')) return `${trimmed}:${port}`;
+    if (trimmed.includes(':')) return `[${trimmed}]:${port}`;
+    return `${trimmed}:${port}`;
+  }
+
   static nodeToUrl(node) {
     if (node.originalUrl && !node.displayName) return node.originalUrl;
     const remark = node.displayName || node.remark;
     try {
       switch (node.protocol) {
         case 'vless': {
-          const hostPort = node.address.includes(':') ? `[${node.address}]:${node.port}` : `${node.address}:${node.port}`;
+          const hostPort = this.formatHostPort(node.address, node.port);
           const ipParam = node.params.ip ? `&ip=${encodeURIComponent(node.params.ip)}` : '';
-          return `vless://${node.params.uuid}@${hostPort}?encryption=${node.params.encryption || 'none'}&security=${node.params.security || 'tls'}&type=${node.params.type || 'ws'}&path=${encodeURIComponent(node.params.path || '/')}&host=${encodeURIComponent(node.params.host || '')}&sni=${encodeURIComponent(node.params.sni || '')}${ipParam}#${encodeURIComponent(remark)}`;
+          const flowParam = node.params.flow ? `&flow=${encodeURIComponent(node.params.flow)}` : '';
+          return `vless://${node.params.uuid}@${hostPort}?encryption=${node.params.encryption || 'none'}&security=${node.params.security || 'tls'}&type=${node.params.type || 'ws'}&path=${encodeURIComponent(node.params.path || '/')}&host=${encodeURIComponent(node.params.host || '')}&sni=${encodeURIComponent(node.params.sni || '')}${flowParam}${ipParam}#${encodeURIComponent(remark)}`;
         }
         case 'vmess': {
           const obj = {
             v: '2', ps: remark, add: node.address, port: String(node.port),
             id: node.params.id, aid: String(node.params.aid || 0), scy: node.params.scy || 'auto',
             net: node.params.net || 'tcp', type: node.params.type || 'none', host: node.params.host || '',
-            path: node.params.path || '', tls: node.params.tls || '', sni: node.params.sni || ''
+            path: node.params.path || '', tls: node.params.tls || '', sni: node.params.sni || '',
+            fp: node.params.fp || ''
           };
           return 'vmess://' + btoa(unescape(encodeURIComponent(JSON.stringify(obj))));
         }
         case 'ss': {
-          const hostPort = node.address.includes(':') ? `[${node.address}]:${node.port}` : `${node.address}:${node.port}`;
+          const hostPort = this.formatHostPort(node.address, node.port);
           return `ss://${btoa(`${node.params.method}:${node.params.password}`)}@${hostPort}#${encodeURIComponent(remark)}`;
         }
         case 'trojan': {
-          const hostPort = node.address.includes(':') ? `[${node.address}]:${node.port}` : `${node.address}:${node.port}`;
+          const hostPort = this.formatHostPort(node.address, node.port);
           return `trojan://${encodeURIComponent(node.params.password || 'your_password')}@${hostPort}?security=${node.params.security || 'tls'}&type=${node.params.type || 'tcp'}&sni=${encodeURIComponent(node.params.sni || '')}#${encodeURIComponent(remark)}`;
         }
         case 'socks5': {
-          const hostPort = node.address.includes(':') ? `[${node.address}]:${node.port}` : `${node.address}:${node.port}`;
+          const hostPort = this.formatHostPort(node.address, node.port);
           const user = node.params.user ? encodeURIComponent(node.params.user) : '';
           const pass = node.params.pass ? encodeURIComponent(node.params.pass) : '';
           const auth = user ? (pass ? `${user}:${pass}` : user) : '';

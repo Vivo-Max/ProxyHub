@@ -1,7 +1,7 @@
 // Protocol Parser - 代理协议解析引擎
 
 class ProxyNode {
-  constructor(protocol, address, port, remark, params = {}, originalUrl = '', latency = null) {
+  constructor(protocol, address, port, remark, params = {}, originalUrl = '', latency = null, downloadSpeed = null) {
     this.protocol = protocol;
     this.address = address;
     this.port = port;
@@ -13,6 +13,7 @@ class ProxyNode {
     this.emoji = '🌐';
     this.displayName = '';
     this.latency = latency;
+    this.downloadSpeed = null;
   }
 }
 
@@ -22,7 +23,7 @@ class ProtocolParser {
     const text = input.trim();
     if (this.looksLikeCSV(text)) {
       try {
-        return FileHandler.parseCSV(text).map(n => new ProxyNode('trojan', n.address, n.port, n.remark, { password: '' }, '', n.latency));
+        return FileHandler.parseCSV(text).map(n => new ProxyNode('trojan', n.address, n.port, n.remark, { password: '' }, '', n.latency, n.downloadSpeed));
       } catch (e) {
         console.warn('CSV parse failed:', e.message);
       }
